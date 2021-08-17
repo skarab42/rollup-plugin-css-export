@@ -1,8 +1,15 @@
-import { OutputAsset, OutputChunk, rollup } from "rollup";
+import { OutputAsset, OutputChunk, rollup, Plugin } from "rollup";
 import css from "../dist/index";
 import rimraf from "rimraf";
 import glob from "glob";
 import fs from "fs";
+
+type Metadata = Record<string, string[] | null>;
+
+interface TestPluginOptions {
+  metaKey: string;
+  metadata: Metadata;
+}
 
 const tempDir = "test/temp";
 
@@ -25,6 +32,23 @@ function expectTree(fixtures: string[], outputs: string[]) {
 function isEntryChunk(info: OutputAsset | OutputChunk): info is OutputChunk {
   info = info as OutputChunk;
   return info.isEntry === true && info.facadeModuleId !== null;
+}
+
+function testPlugin(options: TestPluginOptions): Plugin {
+  const { metaKey, metadata } = options;
+
+  return {
+    name: "test-plugin",
+
+    generateBundle(_, bundle) {
+      Object.entries(bundle).forEach(([id, entry]) => {
+        if (isEntryChunk(entry) && entry.facadeModuleId) {
+          const info = this.getModuleInfo(entry.facadeModuleId);
+          metadata[id] = info?.meta[metaKey];
+        }
+      });
+    },
+  };
 }
 
 describe("rollup-plugin-css-export", () => {
@@ -143,7 +167,7 @@ describe("rollup-plugin-css-export", () => {
       "purple.js": ["assets/reset.css", "assets/red.css", "assets/blue.css"],
     };
 
-    const metadata: Record<string, string[] | null> = {};
+    const metadata: Metadata = {};
 
     const bundle = await rollup({
       input: [
@@ -151,20 +175,7 @@ describe("rollup-plugin-css-export", () => {
         "test/fixtures/red.js",
         "test/fixtures/purple.js",
       ],
-      plugins: [
-        css({ metaKey }),
-        {
-          name: "your-plugin",
-          generateBundle(_, bundle) {
-            Object.entries(bundle).forEach(([id, entry]) => {
-              if (isEntryChunk(entry) && entry.facadeModuleId) {
-                const info = this.getModuleInfo(entry.facadeModuleId);
-                metadata[id] = info?.meta[metaKey];
-              }
-            });
-          },
-        },
-      ],
+      plugins: [css({ metaKey }), testPlugin({ metaKey, metadata })],
     });
 
     await bundle.write(defaultOutputOptions);
@@ -172,4 +183,46 @@ describe("rollup-plugin-css-export", () => {
     expectTree(fixtures, outputs);
     expect(metadata).toStrictEqual(expectedMetadata);
   });
+
+  // it("should export entry metadata", async () => {
+  //   const metaKey = "styles";
+  //   const fixtures: string[] = [
+  //     "test/fixtures/red.css",
+  //     "test/fixtures/blue.css",
+  //     "test/fixtures/lib/reset.css",
+  //   ];
+  //   const outputs: string[] = [
+  //     "test/temp/assets/red.css",
+  //     "test/temp/assets/blue.css",
+  //     "test/temp/assets/reset.css",
+  //   ];
+  //   const expectedMetadata = {
+  //     "rainbow.js": ["assets/reset.css", "assets/red.css", "assets/blue.css"],
+  //   };
+
+  //   const metadata: Record<string, string[] | null> = {};
+
+  //   const bundle = await rollup({
+  //     input: "test/fixtures/rainbow.js",
+  //     plugins: [
+  //       css({ metaKey }),
+  //       {
+  //         name: "your-plugin",
+  //         generateBundle(_, bundle) {
+  //           Object.entries(bundle).forEach(([id, entry]) => {
+  //             if (isEntryChunk(entry) && entry.facadeModuleId) {
+  //               const info = this.getModuleInfo(entry.facadeModuleId);
+  //               metadata[id] = info?.meta[metaKey];
+  //             }
+  //           });
+  //         },
+  //       },
+  //     ],
+  //   });
+
+  //   await bundle.write(defaultOutputOptions);
+
+  //   expectTree(fixtures, outputs);
+  //   expect(metadata).toStrictEqual(expectedMetadata);
+  // });
 });
