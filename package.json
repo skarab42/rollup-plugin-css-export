@@ -1,13 +1,17 @@
 {
   "version": "0.1.0",
   "name": "rollup-plugin-css-export",
-  "description": "Exports CSS files imported from module",
+  "description": "Extracts and exports all CSS files that have been imported as a module, preserving or not the original path of the asset.",
   "types": "dist/@types/index.d.ts",
   "main": "dist/index.js",
   "files": [
     "dist/**/*"
   ],
   "license": "MIT",
+  "author": "Sébastien Mischler <contact@skarab42.dev>",
+  "homepage": "https://github.com/skarab42/rollup-plugin-css-export",
+  "bugs": "https://github.com/skarab42/rollup-plugin-css-export/issues",
+  "repository": "https://github.com/skarab42/rollup-plugin-css-export.git",
   "scripts": {
     "dev": "tsc -w",
     "test": "jest",
@@ -35,5 +39,13 @@
   "dependencies": {
     "@rollup/pluginutils": "^4.1.1",
     "tslib": "^2.3.1"
-  }
+  },
+  "keywords": [
+    "rollup",
+    "plugin",
+    "css",
+    "style",
+    "import",
+    "export"
+  ]
 }
