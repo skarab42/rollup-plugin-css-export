@@ -16,8 +16,8 @@ describe("rollup-plugin-css-export", () => {
       "test/fixtures/lib/reset.css",
     ];
     const outputs: string[] = [
-      "test/temp/assets/red-443842c2.css",
-      "test/temp/assets/reset-be7c786b.css",
+      "test/temp/assets/red.css",
+      "test/temp/assets/reset.css",
     ];
 
     const bundle = await rollup({
@@ -27,6 +27,7 @@ describe("rollup-plugin-css-export", () => {
 
     await bundle.write({
       dir: tempDir,
+      assetFileNames: "assets/[name].[ext]",
     });
 
     expect(tempGlob()).toEqual(expect.arrayContaining(outputs));
@@ -45,9 +46,9 @@ describe("rollup-plugin-css-export", () => {
       "test/fixtures/lib/reset.css",
     ];
     const outputs: string[] = [
-      "test/temp/assets/red-443842c2.css",
-      "test/temp/assets/blue-8e2a6dc2.css",
-      "test/temp/assets/reset-be7c786b.css",
+      "test/temp/assets/red.css",
+      "test/temp/assets/blue.css",
+      "test/temp/assets/reset.css",
     ];
 
     const bundle = await rollup({
@@ -57,6 +58,7 @@ describe("rollup-plugin-css-export", () => {
 
     await bundle.write({
       dir: tempDir,
+      assetFileNames: "assets/[name].[ext]",
     });
 
     expect(tempGlob()).toEqual(expect.arrayContaining(outputs));
