@@ -1,4 +1,5 @@
 import { OutputAsset, OutputChunk, rollup, Plugin } from "rollup";
+import resolve from "@rollup/plugin-node-resolve";
 import css from "../dist/index";
 import rimraf from "rimraf";
 import glob from "glob";
@@ -211,5 +212,19 @@ describe("rollup-plugin-css-export", () => {
 
     expectTree(fixtures, outputs);
     expect(metadata).toStrictEqual(expectedMetadata);
+  });
+
+  it("should import CSS from node_modules", async () => {
+    const fixtures: string[] = ["node_modules/normalize.css/normalize.css"];
+    const outputs: string[] = ["test/temp/assets/normalize.css"];
+
+    const bundle = await rollup({
+      input: "test/fixtures/normalize.js",
+      plugins: [css(), resolve()],
+    });
+
+    await bundle.write(defaultOutputOptions);
+
+    expectTree(fixtures, outputs);
   });
 });

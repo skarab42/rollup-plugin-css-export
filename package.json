@@ -16,12 +16,14 @@
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.4",
     "@types/glob": "^7.1.4",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.6.0",
     "@types/rimraf": "^3.0.1",
     "glob": "^7.1.7",
     "jest": "^27.0.6",
+    "normalize.css": "^8.0.1",
     "rimraf": "^3.0.2",
     "rollup": "^2.56.2",
     "ts-jest": "^27.0.5",
