@@ -1,5 +1,5 @@
 {
-  "include": ["src"],
+  "include": ["src", "test/*.test.ts"],
   "compilerOptions": {
     // Basic Options
     "checkJs": true,
