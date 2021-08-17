@@ -1,5 +1,6 @@
 import { rollup } from "rollup";
 import css from "../dist/index";
+import rimraf from "rimraf";
 import glob from "glob";
 import fs from "fs";
 
@@ -33,5 +34,8 @@ describe("rollup-plugin-css-export", () => {
     outputs.forEach((output, index) => {
       expect(readFile(fixtures[index] as string)).toEqual(readFile(output));
     });
+
+    rimraf.sync(tempDir);
+  });
   });
 });

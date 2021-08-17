@@ -19,6 +19,7 @@
     "@types/glob": "^7.1.4",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.6.0",
+    "@types/rimraf": "^3.0.1",
     "glob": "^7.1.7",
     "jest": "^27.0.6",
     "rimraf": "^3.0.2",
