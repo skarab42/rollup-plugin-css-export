@@ -36,11 +36,9 @@ function getEntryStyles(id: string, entries: ImportedIds): StylesList {
 }
 
 export default function CSSExport(options: CSSExportOptions = {}): Plugin {
-  const pluginOptions = { metaKey: "styles", ...options };
-
   const styleFilter = createFilter(
-    pluginOptions.include || ["**/*.css"],
-    pluginOptions.exclude
+    options.include || ["**/*.css"],
+    options.exclude
   );
 
   const styleAssets: StyleAssets = new Map();
@@ -71,12 +69,18 @@ export default function CSSExport(options: CSSExportOptions = {}): Plugin {
         return name;
       };
 
-      const getFileName = (id: string) =>
-        Object.values(bundle).find((e) => e.name === resolveName(id))?.fileName;
-
       styleAssets.forEach(({ id, source }) => {
         this.emitFile({ type: "asset", name: resolveName(id), source });
       });
+
+      const { metaKey } = options;
+
+      if (!metaKey) {
+        return;
+      }
+
+      const getFileName = (id: string) =>
+        Object.values(bundle).find((e) => e.name === resolveName(id))?.fileName;
 
       const importedIds: ImportedIds = new Map();
 
@@ -94,7 +98,7 @@ export default function CSSExport(options: CSSExportOptions = {}): Plugin {
         const info = this.getModuleInfo(id);
 
         if (info) {
-          info.meta[pluginOptions.metaKey] = [...styles]
+          info.meta[metaKey] = [...styles]
             .map(getFileName)
             .filter((fileName) => fileName !== undefined);
         }
