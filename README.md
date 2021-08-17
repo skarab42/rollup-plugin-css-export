@@ -33,6 +33,8 @@ npm install --save-dev rollup-plugin-css-export
 
 # Basic example
 
+`red.js`, `blue.js` and `purple.js` can be found at https://github.com/skarab42/rollup-plugin-css-export/tree/main/test/fixtures.
+
 ```js
 import css from "rollup-plugin-css-export";
 
