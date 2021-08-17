@@ -37,5 +37,34 @@ describe("rollup-plugin-css-export", () => {
 
     rimraf.sync(tempDir);
   });
+
+  it("should output purple.js assets", async () => {
+    const fixtures: string[] = [
+      "test/fixtures/red.css",
+      "test/fixtures/blue.css",
+      "test/fixtures/lib/reset.css",
+    ];
+    const outputs: string[] = [
+      "test/temp/assets/red-443842c2.css",
+      "test/temp/assets/blue-8e2a6dc2.css",
+      "test/temp/assets/reset-be7c786b.css",
+    ];
+
+    const bundle = await rollup({
+      input: "test/fixtures/purple.js",
+      plugins: [css()],
+    });
+
+    await bundle.write({
+      dir: tempDir,
+    });
+
+    expect(tempGlob()).toEqual(expect.arrayContaining(outputs));
+
+    outputs.forEach((output, index) => {
+      expect(readFile(fixtures[index] as string)).toEqual(readFile(output));
+    });
+
+    rimraf.sync(tempDir);
   });
 });
