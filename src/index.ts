@@ -3,7 +3,7 @@ import path from "path";
 import { createFilter } from "@rollup/pluginutils";
 
 import type { FilterPattern } from "@rollup/pluginutils/types";
-import type { Plugin } from "rollup";
+import type { NormalizedOutputOptions, Plugin } from "rollup";
 
 export interface CSSExportOptions {
   include?: FilterPattern;
@@ -35,6 +35,18 @@ function getEntryStyles(id: string, entries: ImportedIds): StylesList {
   return styles;
 }
 
+function resolveName(id: string, options: NormalizedOutputOptions) {
+  let name: string;
+
+  if (options.preserveModules) {
+    const cwd = options.preserveModulesRoot ?? process.cwd();
+    name = path.relative(cwd, id).replace(/\\/g, "/");
+  } else {
+    name = path.basename(id);
+  }
+  return name;
+}
+
 export default function CSSExport(options: CSSExportOptions = {}): Plugin {
   const styleFilter = createFilter(
     options.include || ["**/*.css"],
@@ -56,21 +68,13 @@ export default function CSSExport(options: CSSExportOptions = {}): Plugin {
       return "";
     },
 
-    generateBundle(outputOptions, bundle) {
-      const resolveName = (id: string) => {
-        let name: string;
-
-        if (outputOptions.preserveModules) {
-          const cwd = outputOptions.preserveModulesRoot ?? process.cwd();
-          name = path.relative(cwd, id).replace(/\\/g, "/");
-        } else {
-          name = path.basename(id);
-        }
-        return name;
-      };
-
+    generateBundle(opts, bundle) {
       styleAssets.forEach(({ id, source }) => {
-        this.emitFile({ type: "asset", name: resolveName(id), source });
+        this.emitFile({
+          type: "asset",
+          name: resolveName(id, opts),
+          source,
+        });
       });
 
       const { metaKey } = options;
@@ -79,14 +83,15 @@ export default function CSSExport(options: CSSExportOptions = {}): Plugin {
         return;
       }
 
-      const getFileName = (id: string) =>
-        Object.values(bundle).find((e) => e.name === resolveName(id))?.fileName;
-
       const importedIds: ImportedIds = new Map();
 
       [...this.getModuleIds()].forEach((id) => {
         importedIds.set(id, this.getModuleInfo(id)?.importedIds ?? []);
       });
+
+      const getFileName = (id: string) =>
+        Object.values(bundle).find((e) => e.name === resolveName(id, opts))
+          ?.fileName;
 
       importedIds.forEach((_, id) => {
         const styles = getEntryStyles(id, importedIds);
@@ -98,9 +103,7 @@ export default function CSSExport(options: CSSExportOptions = {}): Plugin {
         const info = this.getModuleInfo(id);
 
         if (info) {
-          info.meta[metaKey] = [...styles]
-            .map(getFileName)
-            .filter((fileName) => fileName !== undefined);
+          info.meta[metaKey] = [...styles].map(getFileName).filter(Boolean);
         }
       });
     },
