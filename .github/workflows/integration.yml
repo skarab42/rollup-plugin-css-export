@@ -3,7 +3,7 @@ name: integration
 on: [push, pull_request]
 
 jobs:
-  lint_test:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

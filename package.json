@@ -3,7 +3,6 @@
   "name": "rollup-plugin-css-export",
   "description": "Extracts and exports all CSS files that have been imported as a module, preserving or not the original path of the asset.",
   "types": "dist/@types/index.d.ts",
-  "type": "module",
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
   "exports": {
