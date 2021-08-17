@@ -184,45 +184,32 @@ describe("rollup-plugin-css-export", () => {
     expect(metadata).toStrictEqual(expectedMetadata);
   });
 
-  // it("should export entry metadata", async () => {
-  //   const metaKey = "styles";
-  //   const fixtures: string[] = [
-  //     "test/fixtures/red.css",
-  //     "test/fixtures/blue.css",
-  //     "test/fixtures/lib/reset.css",
-  //   ];
-  //   const outputs: string[] = [
-  //     "test/temp/assets/red.css",
-  //     "test/temp/assets/blue.css",
-  //     "test/temp/assets/reset.css",
-  //   ];
-  //   const expectedMetadata = {
-  //     "rainbow.js": ["assets/reset.css", "assets/red.css", "assets/blue.css"],
-  //   };
+  it("should export entry metadata with recursive import", async () => {
+    const metaKey = "styles";
+    const fixtures: string[] = [
+      "test/fixtures/red.css",
+      "test/fixtures/blue.css",
+      "test/fixtures/lib/reset.css",
+    ];
+    const outputs: string[] = [
+      "test/temp/assets/red.css",
+      "test/temp/assets/blue.css",
+      "test/temp/assets/reset.css",
+    ];
+    const expectedMetadata = {
+      "rainbow.js": ["assets/reset.css", "assets/red.css", "assets/blue.css"],
+    };
 
-  //   const metadata: Record<string, string[] | null> = {};
+    const metadata: Record<string, string[] | null> = {};
 
-  //   const bundle = await rollup({
-  //     input: "test/fixtures/rainbow.js",
-  //     plugins: [
-  //       css({ metaKey }),
-  //       {
-  //         name: "your-plugin",
-  //         generateBundle(_, bundle) {
-  //           Object.entries(bundle).forEach(([id, entry]) => {
-  //             if (isEntryChunk(entry) && entry.facadeModuleId) {
-  //               const info = this.getModuleInfo(entry.facadeModuleId);
-  //               metadata[id] = info?.meta[metaKey];
-  //             }
-  //           });
-  //         },
-  //       },
-  //     ],
-  //   });
+    const bundle = await rollup({
+      input: "test/fixtures/rainbow.js",
+      plugins: [css({ metaKey }), testPlugin({ metaKey, metadata })],
+    });
 
-  //   await bundle.write(defaultOutputOptions);
+    await bundle.write(defaultOutputOptions);
 
-  //   expectTree(fixtures, outputs);
-  //   expect(metadata).toStrictEqual(expectedMetadata);
-  // });
+    expectTree(fixtures, outputs);
+    expect(metadata).toStrictEqual(expectedMetadata);
+  });
 });
