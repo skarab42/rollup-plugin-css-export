@@ -1,4 +1,5 @@
-# rollup-plugin-css-export
+# rollup-plugin-css-export 
+[![integration](https://github.com/skarab42/rollup-plugin-css-export/actions/workflows/integration.yml/badge.svg)](https://github.com/skarab42/rollup-plugin-css-export/actions/workflows/integration.yml)
 
 Extracts and exports all CSS files that have been imported as a module, preserving or not the original path of the asset.
 
