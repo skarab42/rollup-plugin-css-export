@@ -10,6 +10,10 @@ const tempGlob = () => glob.sync(`${tempDir}/**/*.css`, { nodir: true });
 const readFile = (path: string) => fs.readFileSync(path, { encoding: "utf-8" });
 
 describe("rollup-plugin-css-export", () => {
+  afterEach(() => {
+    rimraf.sync(tempDir);
+  });
+
   it("should output red.js assets", async () => {
     const fixtures: string[] = [
       "test/fixtures/red.css",
@@ -35,8 +39,6 @@ describe("rollup-plugin-css-export", () => {
     outputs.forEach((output, index) => {
       expect(readFile(fixtures[index] as string)).toEqual(readFile(output));
     });
-
-    rimraf.sync(tempDir);
   });
 
   it("should output purple.js assets", async () => {
@@ -66,7 +68,5 @@ describe("rollup-plugin-css-export", () => {
     outputs.forEach((output, index) => {
       expect(readFile(fixtures[index] as string)).toEqual(readFile(output));
     });
-
-    rimraf.sync(tempDir);
   });
 });
