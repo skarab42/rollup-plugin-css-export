@@ -68,4 +68,30 @@ describe("rollup-plugin-css-export", () => {
 
     expectTree(fixtures, outputs);
   });
+
+  it("should output purple.js assets preserving paths", async () => {
+    const fixtures: string[] = [
+      "test/fixtures/red.css",
+      "test/fixtures/blue.css",
+      "test/fixtures/lib/reset.css",
+    ];
+    const outputs: string[] = [
+      "test/temp/assets/test/fixtures/red.css",
+      "test/temp/assets/test/fixtures/blue.css",
+      "test/temp/assets/test/fixtures/lib/reset.css",
+    ];
+
+    const bundle = await rollup({
+      input: "test/fixtures/purple.js",
+      plugins: [css()],
+    });
+
+    await bundle.write({
+      ...defaultOutputOptions,
+      preserveModules: true,
+    });
+
+    expectTree(fixtures, outputs);
+  });
+
 });
