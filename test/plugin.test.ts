@@ -9,6 +9,11 @@ const tempDir = "test/temp";
 const tempGlob = () => glob.sync(`${tempDir}/**/*.css`, { nodir: true });
 const readFile = (path: string) => fs.readFileSync(path, { encoding: "utf-8" });
 
+const defaultOutputOptions = {
+  dir: tempDir,
+  assetFileNames: "assets/[name].[ext]",
+};
+
 describe("rollup-plugin-css-export", () => {
   afterEach(() => {
     rimraf.sync(tempDir);
@@ -29,10 +34,7 @@ describe("rollup-plugin-css-export", () => {
       plugins: [css()],
     });
 
-    await bundle.write({
-      dir: tempDir,
-      assetFileNames: "assets/[name].[ext]",
-    });
+    await bundle.write(defaultOutputOptions);
 
     expect(tempGlob()).toEqual(expect.arrayContaining(outputs));
 
@@ -58,10 +60,7 @@ describe("rollup-plugin-css-export", () => {
       plugins: [css()],
     });
 
-    await bundle.write({
-      dir: tempDir,
-      assetFileNames: "assets/[name].[ext]",
-    });
+    await bundle.write(defaultOutputOptions);
 
     expect(tempGlob()).toEqual(expect.arrayContaining(outputs));
 
