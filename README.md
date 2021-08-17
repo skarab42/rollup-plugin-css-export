@@ -74,6 +74,8 @@ Outputs with `preserveModules = true`
 
 # Accessing metadata from another plugin
 
+Metadata are not directly accessible in the bundle. You have to retrieve the extended information from the module with the `this.getModuleInfo` method.
+
 ```js
 import css from "rollup-plugin-css-export";
 
@@ -89,11 +91,11 @@ export default {
     css({ metaKey }),
     {
       name: "your-plugin",
-      generateBundle() {
-        [...this.getModuleIds()].forEach((id) => {
-          const chunkInfo = this.getModuleInfo(id);
-          if (chunkInfo.isEntry) {
-            console.log(chunkInfo.id, chunkInfo.meta[metaKey]);
+      generateBundle(_, bundle) {
+        Object.entries(bundle).forEach(([id, entry]) => {
+          if (entry.isEntry) {
+            const info = this.getModuleInfo(entry.facadeModuleId);
+            console.log("META:", id, info.meta[metaKey]);
           }
         });
       },
