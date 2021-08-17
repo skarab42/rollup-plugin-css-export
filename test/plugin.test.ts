@@ -1,6 +1,6 @@
 import { OutputAsset, OutputChunk, rollup, Plugin } from "rollup";
 import resolve from "@rollup/plugin-node-resolve";
-import css from "../dist/index";
+import css from "../src/index";
 import rimraf from "rimraf";
 import glob from "glob";
 import fs from "fs";

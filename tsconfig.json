@@ -1,15 +1,16 @@
 {
-  "include": ["src", "test/*.test.ts"],
+  "include": ["src/**/*.ts"],
   "compilerOptions": {
     // Basic Options
     "checkJs": true,
     "target": "es6",
     "module": "commonjs",
-    "outDir": "./dist",
+    "outDir": "dist",
+    // "rootDir": "src",
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "./dist/@types",
+    "declarationDir": "dist/@types",
     "removeComments": true,
     "importHelpers": true,
 
