@@ -19,6 +19,7 @@
   "repository": "https://github.com/skarab42/rollup-plugin-css-export.git",
   "scripts": {
     "test": "jest",
+    "test:coverage": "yarn test --collect-coverage",
     "clean": "rimraf dist",
     "prepublishOnly": "yarn build",
     "dev": "tsc -w -p tsconfig-mjs.json",
