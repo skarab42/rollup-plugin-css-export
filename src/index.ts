@@ -3,7 +3,7 @@ import path from "path";
 import { createFilter } from "@rollup/pluginutils";
 
 import type { FilterPattern } from "@rollup/pluginutils/types";
-import type { NormalizedOutputOptions, Plugin } from "rollup";
+import type { ModuleInfo, NormalizedOutputOptions, Plugin } from "rollup";
 
 export interface CSSExportOptions {
   include?: FilterPattern;
@@ -18,17 +18,17 @@ interface StyleAsset {
 
 type StylesList = Set<string>;
 type StyleAssets = Map<string, StyleAsset>;
-type ImportedIds = Map<string, readonly string[]>;
+type ModuleInfos = Map<string, ModuleInfo>;
 
-function getEntryStyles(id: string, entries: ImportedIds): StylesList {
-  const entry = entries.get(id) ?? [];
+function getEntryStyles(id: string, moduleInfos: ModuleInfos): StylesList {
+  const moduleInfo = moduleInfos.get(id);
   const styles: StylesList = new Set();
 
-  entry.forEach((asset) => {
+  moduleInfo?.importedIds.forEach((asset) => {
     if (asset.endsWith(".css")) {
       styles.add(asset);
     } else {
-      getEntryStyles(asset, entries).forEach((s) => styles.add(s));
+      getEntryStyles(asset, moduleInfos).forEach((s) => styles.add(s));
     }
   });
 
@@ -83,27 +83,26 @@ export default function CSSExport(options: CSSExportOptions = {}): Plugin {
         return;
       }
 
-      const importedIds: ImportedIds = new Map();
+      const moduleInfos: ModuleInfos = new Map();
 
       [...this.getModuleIds()].forEach((id) => {
-        importedIds.set(id, this.getModuleInfo(id)?.importedIds ?? []);
+        const moduleInfo = this.getModuleInfo(id);
+        if (moduleInfo) {
+          moduleInfos.set(id, moduleInfo);
+        }
       });
 
       const getFileName = (id: string) =>
         Object.values(bundle).find((e) => e.name === resolveName(id, opts))
           ?.fileName;
 
-      importedIds.forEach((_, id) => {
-        const styles = getEntryStyles(id, importedIds);
+      moduleInfos.forEach((moduleInfo, id) => {
+        const styles = getEntryStyles(id, moduleInfos);
 
-        if (styles.size === 0) {
-          return;
-        }
-
-        const info = this.getModuleInfo(id);
-
-        if (info) {
-          info.meta[metaKey] = [...styles].map(getFileName).filter(Boolean);
+        if (styles.size > 0) {
+          moduleInfo.meta[metaKey] = [...styles]
+            .map(getFileName)
+            .filter(Boolean);
         }
       });
     },
