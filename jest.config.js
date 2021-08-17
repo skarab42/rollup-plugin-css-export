@@ -8,5 +8,5 @@ module.exports = {
     },
   },
   coverageDirectory: "test/coverage",
-  collectCoverageFrom: ["src/**/*.ts"],
+  collectCoverageFrom: ["src/**/*.ts", "!src/@types/**/*"],
 };

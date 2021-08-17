@@ -1,0 +1,7 @@
+@import "../lib/utils.css";
+@import "../red.css";
+
+/* multiple.css */
+body {
+  background-color: fuchsia;
+}
