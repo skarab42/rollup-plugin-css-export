@@ -14,6 +14,14 @@ const defaultOutputOptions = {
   assetFileNames: "assets/[name].[ext]",
 };
 
+function expectTree(fixtures: string[], outputs: string[]) {
+  expect(tempGlob()).toEqual(expect.arrayContaining(outputs));
+
+  outputs.forEach((output, index) => {
+    expect(readFile(fixtures[index] as string)).toEqual(readFile(output));
+  });
+}
+
 describe("rollup-plugin-css-export", () => {
   afterEach(() => {
     rimraf.sync(tempDir);
@@ -36,11 +44,7 @@ describe("rollup-plugin-css-export", () => {
 
     await bundle.write(defaultOutputOptions);
 
-    expect(tempGlob()).toEqual(expect.arrayContaining(outputs));
-
-    outputs.forEach((output, index) => {
-      expect(readFile(fixtures[index] as string)).toEqual(readFile(output));
-    });
+    expectTree(fixtures, outputs);
   });
 
   it("should output purple.js assets", async () => {
@@ -62,10 +66,6 @@ describe("rollup-plugin-css-export", () => {
 
     await bundle.write(defaultOutputOptions);
 
-    expect(tempGlob()).toEqual(expect.arrayContaining(outputs));
-
-    outputs.forEach((output, index) => {
-      expect(readFile(fixtures[index] as string)).toEqual(readFile(output));
-    });
+    expectTree(fixtures, outputs);
   });
 });
