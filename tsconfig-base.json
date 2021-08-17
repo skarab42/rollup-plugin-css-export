@@ -3,9 +3,6 @@
   "compilerOptions": {
     // Basic Options
     "checkJs": true,
-    "target": "es6",
-    "module": "commonjs",
-    "outDir": "dist",
     // "rootDir": "src",
     "sourceMap": true,
     "declaration": true,
@@ -37,6 +34,7 @@
     // Module Resolution Options
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "moduleResolution": "node",
 
     // Advanced Options
     "skipLibCheck": true,

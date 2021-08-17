@@ -3,7 +3,13 @@
   "name": "rollup-plugin-css-export",
   "description": "Extracts and exports all CSS files that have been imported as a module, preserving or not the original path of the asset.",
   "types": "dist/@types/index.d.ts",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
+  "exports": {
+    "import": "./dist/mjs/index.js",
+    "require": "./dist/cjs/index.js"
+  },
   "files": [
     "dist/**/*"
   ],
@@ -13,11 +19,14 @@
   "bugs": "https://github.com/skarab42/rollup-plugin-css-export/issues",
   "repository": "https://github.com/skarab42/rollup-plugin-css-export.git",
   "scripts": {
-    "dev": "tsc -w",
     "test": "jest",
     "clean": "rimraf dist",
-    "build": "yarn clean && tsc",
-    "prepublishOnly": "yarn build"
+    "prepublishOnly": "yarn build",
+    "dev": "tsc -w -p tsconfig-mjs.json",
+    "build:mjs": "tsc -p tsconfig-mjs.json",
+    "build:cjs": "tsc -p tsconfig-cjs.json",
+    "build": "yarn clean && yarn build:mjs && yarn build:cjs",
+    "postbuild": "node postbuild.js"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.4",
