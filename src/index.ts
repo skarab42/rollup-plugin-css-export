@@ -8,6 +8,7 @@ import type { Plugin } from "rollup";
 export interface CSSExportOptions {
   include?: FilterPattern;
   exclude?: FilterPattern;
+  metaKey?: string;
 }
 
 interface StyleAsset {
@@ -15,12 +16,34 @@ interface StyleAsset {
   source: string;
 }
 
+type StylesList = Set<string>;
+type StyleAssets = Map<string, StyleAsset>;
+type ImportedIds = Map<string, readonly string[]>;
+
+function getEntryStyles(id: string, entries: ImportedIds): StylesList {
+  const entry = entries.get(id) ?? [];
+  const styles: StylesList = new Set();
+
+  entry.forEach((asset) => {
+    if (asset.endsWith(".css")) {
+      styles.add(asset);
+    } else {
+      getEntryStyles(asset, entries).forEach((s) => styles.add(s));
+    }
+  });
+
+  return styles;
+}
+
 export default function CSSExport(options: CSSExportOptions = {}): Plugin {
+  const pluginOptions = { metaKey: "styles", ...options };
+
   const styleFilter = createFilter(
-    options.include || ["**/*.css"],
-    options.exclude
+    pluginOptions.include || ["**/*.css"],
+    pluginOptions.exclude
   );
-  const styleAssets: Map<string, StyleAsset> = new Map();
+
+  const styleAssets: StyleAssets = new Map();
 
   return {
     name: "css-export",
@@ -36,7 +59,7 @@ export default function CSSExport(options: CSSExportOptions = {}): Plugin {
     },
 
     generateBundle(outputOptions, bundle) {
-      styleAssets.forEach(({ id, source }) => {
+      const resolveName = (id: string) => {
         let name: string;
 
         if (outputOptions.preserveModules) {
@@ -45,12 +68,36 @@ export default function CSSExport(options: CSSExportOptions = {}): Plugin {
         } else {
           name = path.basename(id);
         }
+        return name;
+      };
 
-        this.emitFile({ type: "asset", name, source });
+      const getFileName = (id: string) =>
+        Object.values(bundle).find((e) => e.name === resolveName(id))?.fileName;
+
+      styleAssets.forEach(({ id, source }) => {
+        this.emitFile({ type: "asset", name: resolveName(id), source });
       });
 
-      Object.entries(bundle).forEach(([id, chunkInfo]) => {
-        console.log(id, chunkInfo);
+      const importedIds: ImportedIds = new Map();
+
+      [...this.getModuleIds()].forEach((id) => {
+        importedIds.set(id, this.getModuleInfo(id)?.importedIds ?? []);
+      });
+
+      importedIds.forEach((_, id) => {
+        const styles = getEntryStyles(id, importedIds);
+
+        if (styles.size === 0) {
+          return;
+        }
+
+        const info = this.getModuleInfo(id);
+
+        if (info) {
+          info.meta[pluginOptions.metaKey] = [...styles]
+            .map(getFileName)
+            .filter((fileName) => fileName !== undefined);
+        }
       });
     },
   };
