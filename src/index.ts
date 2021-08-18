@@ -1,5 +1,7 @@
 import path from "path";
 
+import postcss, { Result } from "postcss";
+import postcssImport from "postcss-import";
 import { createFilter } from "@rollup/pluginutils";
 
 import type { FilterPattern } from "@rollup/pluginutils/types";
@@ -68,14 +70,31 @@ export default function CSSExport(options: CSSExportOptions = {}): Plugin {
       return "";
     },
 
-    generateBundle(opts, bundle) {
-      styleAssets.forEach(({ id, source }) => {
-        this.emitFile({
-          type: "asset",
-          name: resolveName(id, opts),
-          source,
-        });
-      });
+    async generateBundle(opts, bundle) {
+      await Promise.all(
+        Array.from(styleAssets).map(async ([_, { id, source }]) => {
+          const name = resolveName(id, opts);
+
+          let processedCSS: Result;
+
+          try {
+            processedCSS = await postcss()
+              .use(postcssImport())
+              .process(source, { from: id });
+          } catch (error) {
+            throw new Error(
+              `Something went wrong when inlining an @import directive in '${name}'.`
+            );
+          }
+
+          this.emitFile({
+            type: "asset",
+            name,
+            source:
+              processedCSS.messages.length > 0 ? processedCSS.css : source,
+          });
+        })
+      );
 
       const { metaKey } = options;
 

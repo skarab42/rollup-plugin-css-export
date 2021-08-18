@@ -1,0 +1,7 @@
+@import "../lib/reset.css";
+@import "../lib/layout.css";
+
+/* duplicate.css */
+body {
+  background-color: aqua;
+}
